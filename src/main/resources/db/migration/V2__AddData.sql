@@ -1,0 +1,1 @@
+INSERT INTO test (id, username) VALUES ('123', 'linda');
