@@ -1,4 +1,4 @@
-package com.example.covid19api.domain;
+package com.example.covid19api.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,4 +16,20 @@ public class Test {
 
     @Size(min = 1, max = 100)
     private String username;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
