@@ -1,0 +1,22 @@
+CREATE TABLE us_data (
+    id bigint(20) NOT NULL AUTO_INCREMENT,
+    state varchar(100) NOT NULL,
+    country varchar(100) NOT NULL,
+    last_update varchar(100),
+    latitude double,
+    longitude double,
+    confirmed int,
+    deaths int,
+    recovered int,
+    active double,
+    fips int,
+    incident_rate double,
+    people_tested int,
+    people_hospitalized int,
+    mortality_rate double,
+    uid int,
+    iso3 varchar(40),
+    testing_rate double,
+    hospitalization_rate double,
+    PRIMARY KEY(id)
+)
