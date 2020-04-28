@@ -11,8 +11,7 @@ public class ReadCSV {
 
     public static List<String[]> readCSVFile(String file) {
         try {
-//            Read local file
-//            FileReader fileReader = new FileReader(file);
+//            FileReader fileReader = new FileReader(file); // Read local file
             URL stockURL = new URL(file);
             BufferedReader fileReader = new BufferedReader(new InputStreamReader(stockURL.openStream()));
             CSVReader csvReader = new CSVReader(fileReader);
