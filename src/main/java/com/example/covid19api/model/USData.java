@@ -22,9 +22,9 @@ public class USData {
 
     private String lastUpdate;
 
-    private Double latitude;
+    private String latitude;
 
-    private Double longitude;
+    private String longitude;
 
     private Integer confirmed;
 
@@ -34,27 +34,31 @@ public class USData {
 
     private Double active;
 
-    private Integer fips;
-
-    private Double incidentRate;
-
-    private Integer peopleTested;
-
-    private Integer peopleHospitalized;
-
     private Double mortalityRate;
-
-    private Integer uid;
 
     private String iso3;
 
-    private Double testingRate;
-
-    private Double hospitalizationRate;
-
     public USData(String state,
-                  String country) {
+                  String country,
+                  String lastUpdate,
+                  String latitude,
+                  String longitude,
+                  Integer confirmed,
+                  Integer deaths,
+                  Integer recovered,
+                  Double active,
+                  Double mortalityRate,
+                  String iso3) {
         this.state = state;
         this.country = country;
+        this.lastUpdate = lastUpdate;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.confirmed = confirmed;
+        this.deaths = deaths;
+        this.recovered = recovered;
+        this.active = active;
+        this.mortalityRate = mortalityRate;
+        this.iso3 = iso3;
     }
 }

@@ -1,27 +1,23 @@
 package com.example.covid19api.controller;
 
-import com.example.covid19api.model.USData;
-import com.example.covid19api.repository.USDataRepository;
-import com.example.covid19api.utils.ReadCSV;
+import com.example.covid19api.service.USDataService;
+import com.example.covid19api.utils.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 public class USDataController {
 
     @Autowired
-    private USDataRepository usDataRepository;
+    private USDataService usDataService;
 
-    String file = "/Users/lindayang/Desktop/Projects/covid19-api/src/main/java/com/example/covid19api/utils/04-25-2020.csv";
+    String file = String.format(
+            "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/%s.csv",
+             Helper.date());
 
     @RequestMapping("/data")
     public void saveData() {
-        List<String[]> data = ReadCSV.readCSVFile(file);
-        String[] strings = data.get(1);
-        USData firstLine = new USData(strings[0], strings[1]);
-        usDataRepository.save(firstLine);
+        usDataService.saveUSData(file);
     }
 }
