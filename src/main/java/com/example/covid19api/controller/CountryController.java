@@ -1,5 +1,7 @@
 package com.example.covid19api.controller;
 
+import com.example.covid19api.model.Country;
+import com.example.covid19api.model.Location;
 import com.example.covid19api.service.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,8 +18,13 @@ public class CountryController {
 
     String file = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
 
-    @RequestMapping("/country")
-    public TreeMap<String, Set<String>> displayCountry() {
+    @RequestMapping("/countries")
+    public TreeMap<String, Country> displayCountry() {
         return countryService.groupProvincesToCountry(file);
+    }
+
+    @RequestMapping("/locations")
+    public Set<Location> buildCountries() {
+        return countryService.createLocations(file);
     }
 }

@@ -2,6 +2,9 @@ package com.example.covid19api.model;
 
 import lombok.Data;
 
+import java.util.Optional;
+import java.util.Set;
+
 @Data
 public class Country {
 
@@ -11,19 +14,19 @@ public class Country {
 
     public String iso3;
 
-    public String provinceState;
+    public Coordinate countryCoordinate;
 
-    public Coordinate coordinate;
+    public Optional<Set<ProvinceStateLocation>> provinceState;
 
     public Country(String country,
                    String iso2,
                    String iso3,
-                   String provinceState,
-                   Coordinate coordinate) {
+                   Coordinate countryCoordinates,
+                   Optional<Set<ProvinceStateLocation>> provinceState) {
         this.country = country;
         this.iso2 = iso2;
         this.iso3 = iso3;
+        this.countryCoordinate = countryCoordinates;
         this.provinceState = provinceState;
-        this.coordinate = coordinate;
     }
 }
