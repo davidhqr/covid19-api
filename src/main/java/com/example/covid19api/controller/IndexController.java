@@ -1,13 +1,14 @@
-package com.example.covid19api;
+package com.example.covid19api.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class HelloContainer {
+public class IndexController {
 
     @RequestMapping("/")
     public String index() {
-        return "Greetings from Meenie!";
+        return ("Welcome to COVID19-API");
     }
+
 }
