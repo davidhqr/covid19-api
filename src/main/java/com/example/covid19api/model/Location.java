@@ -6,7 +6,7 @@ import lombok.Data;
 public class Location {
 
     // Object based on UID_ISO_FIPS_LookUp_Table.csv
-    // Create location for each province and state recorded
+    // Create location for each recorded province and state for all countries
 
     public String country;
 

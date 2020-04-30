@@ -19,12 +19,12 @@ public class CountryController {
     String file = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
 
     @RequestMapping("/countries")
-    public TreeMap<String, Country> displayCountry() {
+    public TreeMap<String, Country> getAllCountriesWithProvincesGrouped() {
         return countryService.groupProvincesToCountry(file);
     }
 
     @RequestMapping("/locations")
-    public Set<Location> buildCountries() {
+    public Set<Location> buildLocationsByProvinceState() {
         return countryService.createLocations(file);
     }
 }
