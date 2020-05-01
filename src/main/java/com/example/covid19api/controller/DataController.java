@@ -1,6 +1,7 @@
 package com.example.covid19api.controller;
 
 import com.example.covid19api.model.LatestDataByCountry;
+import com.example.covid19api.model.LatestDataGlobal;
 import com.example.covid19api.model.LocationConfirmedData;
 import com.example.covid19api.model.LocationDeathData;
 import com.example.covid19api.model.LocationRecoveredData;
@@ -23,8 +24,19 @@ public class DataController {
     String deaths = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv";
     String recovered = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
     String latest = String.format(
-            "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/%s.csv",
+            "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/%s.csv",
             Helper.date());
+
+
+    @RequestMapping("/api/latest")
+    public LatestDataGlobal getLatestDataGlobal() {
+        return dataService.latestDataGlobal(latest);
+    }
+
+    @RequestMapping("/api/countries/latest")
+    public Collection<LatestDataByCountry> getLatestDataByCountry() {
+        return dataService.latestDataByCountry(latest).values();
+    }
 
     @RequestMapping("/confirmed")
     public List<LocationConfirmedData> getConfirmedByGlobalLocation() {
@@ -39,10 +51,5 @@ public class DataController {
     @RequestMapping("/recovered")
     public List<LocationRecoveredData> getRecoveredByGlobalLocation() {
         return dataService.recoveredDataByLocation(recovered);
-    }
-
-    @RequestMapping("/latest")
-    public Collection<LatestDataByCountry> getLatestDataByCountry() {
-        return dataService.latestDataByCountry(latest).values();
     }
 }

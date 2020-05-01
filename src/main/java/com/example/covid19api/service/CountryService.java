@@ -16,7 +16,7 @@ import java.util.TreeMap;
 @Service
 public class CountryService {
 
-    private int TABLE_LENGTH = 327;
+    private int TABLE_LENGTH = 348;
 
     // Create Location objects for each recorded province/state
     public Set<Location> createLocations(String file) {
@@ -49,6 +49,7 @@ public class CountryService {
                                                    row[2],
                                                    new Coordinate(row[8],
                                                                   row[9]),
+                                                   Integer.parseInt(row[row.length - 1].equals("") ? "0" : row[row.length - 1]),
                                                    Optional.of(new HashSet<>())));
             } else {
                 if (!row[6].equals("Recovered")) {
