@@ -1,7 +1,7 @@
 package com.example.covid19api.model;
 
 import java.util.Optional;
-import java.util.Set;
+import java.util.TreeMap;
 
 public class LatestDataByCountryGrouped {
 
@@ -15,14 +15,14 @@ public class LatestDataByCountryGrouped {
 
     public Integer recovered;
 
-    public Optional<Set<LatestDataByLocation>> latestDataByLocations;
+    public Optional<TreeMap<String, LatestDataByLocation>> latestDataByLocations;
 
     public LatestDataByCountryGrouped(String country,
                                       Coordinate countryCoordinate,
                                       Integer confirmed,
                                       Integer deaths,
                                       Integer recovered,
-                                      Optional<Set<LatestDataByLocation>> latestDataByLocations) {
+                                      Optional<TreeMap<String, LatestDataByLocation>> latestDataByLocations) {
         this.country = country;
         this.countryCoordinate = countryCoordinate;
         this.confirmed = confirmed;

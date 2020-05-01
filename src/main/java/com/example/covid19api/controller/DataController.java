@@ -1,6 +1,7 @@
 package com.example.covid19api.controller;
 
 import com.example.covid19api.model.LatestDataByCountry;
+import com.example.covid19api.model.LatestDataByCountryGrouped;
 import com.example.covid19api.model.LatestDataGlobal;
 import com.example.covid19api.model.LocationConfirmedData;
 import com.example.covid19api.model.LocationDeathData;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.TreeMap;
 
 @RestController
 public class DataController {
@@ -39,6 +41,11 @@ public class DataController {
     @RequestMapping("/api/countries/latest")
     public Collection<LatestDataByCountry> getLatestDataByCountry() {
         return dataService.latestDataByCountry(latest).values();
+    }
+
+    @RequestMapping("/api/countries/locations/latest")
+    public TreeMap<String, LatestDataByCountryGrouped> getLatestDataWithLocationsGrouped() {
+        return dataService.latestDataWithLocationsGrouped(latest);
     }
 
 
