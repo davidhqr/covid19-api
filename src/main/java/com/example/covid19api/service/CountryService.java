@@ -19,7 +19,7 @@ public class CountryService {
 
     // Create Location objects for each recorded province/state
     public TreeMap<String, Location> createLocations(String file) {
-        TreeMap<String, Location> locationTreeMap = new TreeMap<>();
+        TreeMap<String, Location> locationTreeMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         List<String[]> data = ReadCSV.readCSVFile(file);
         for (int i = 1; i < TABLE_LENGTH; i++) {
             String[] row = data.get(i);
@@ -40,7 +40,7 @@ public class CountryService {
 
     // Country object contains all of the countries' recorded provinces/states and their coordinates
     public TreeMap<String, Country> groupProvincesToCountry(String file) {
-        TreeMap<String, Country> countryMap = new TreeMap<>();
+        TreeMap<String, Country> countryMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         List<String[]> data = ReadCSV.readCSVFile(file);
         for (int i = 1; i < TABLE_LENGTH; i++) {
             String[] row = data.get(i);
