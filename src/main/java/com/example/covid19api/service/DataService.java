@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -134,13 +133,15 @@ public class DataService {
         List<String[]> data = ReadCSV.readCSVFile(file);
         for (int i = 1; i < data.size(); i++) {
             String[] row = data.get(i);
-            int confirmed = Integer.parseInt(row[row.length - 1]);
-            LocationConfirmedData locationConfirmedData = new LocationConfirmedData(row[1],
-                                                                                    Optional.of(row[0]),
-                                                                                    new Coordinate(row[2],
-                                                                                                   row[3]),
-                                                                                    confirmed);
-            locationConfirmedDataList.add(locationConfirmedData);
+            if (!row[0].equals("Recovered")) {
+                int confirmed = Integer.parseInt(row[row.length - 1]);
+                LocationConfirmedData locationConfirmedData = new LocationConfirmedData(row[1],
+                                                                                        Optional.of(row[0]),
+                                                                                        new Coordinate(row[2],
+                                                                                                       row[3]),
+                                                                                        confirmed);
+                locationConfirmedDataList.add(locationConfirmedData);
+            }
         }
         return locationConfirmedDataList;
     }
@@ -150,13 +151,15 @@ public class DataService {
         List<String[]> data = ReadCSV.readCSVFile(file);
         for (int i = 1; i < data.size(); i++) {
             String[] row = data.get(i);
-            int deaths = Integer.parseInt(row[row.length - 1]);
-            LocationDeathData locationDeathData = new LocationDeathData(row[1],
-                                                                        Optional.of(row[0]),
-                                                                        new Coordinate(row[2],
-                                                                                       row[3]),
-                                                                        deaths);
-            locationDeathDataList.add(locationDeathData);
+            if (!row[0].equals("Recovered")) {
+                int deaths = Integer.parseInt(row[row.length - 1]);
+                LocationDeathData locationDeathData = new LocationDeathData(row[1],
+                                                                            Optional.of(row[0]),
+                                                                            new Coordinate(row[2],
+                                                                                           row[3]),
+                                                                            deaths);
+                locationDeathDataList.add(locationDeathData);
+            }
         }
         return locationDeathDataList;
     }
