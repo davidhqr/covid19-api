@@ -33,22 +33,28 @@ public class DataController {
         return dataService.latestDataGlobal(latest);
     }
 
+
+    // Data by countries
+
     @RequestMapping("/api/countries/latest")
     public Collection<LatestDataByCountry> getLatestDataByCountry() {
         return dataService.latestDataByCountry(latest).values();
     }
 
-    @RequestMapping("/confirmed")
+
+    // Data by locations (provinces/state if available)
+
+    @RequestMapping("/api/locations/confirmed")
     public List<LocationConfirmedData> getConfirmedByGlobalLocation() {
         return dataService.confirmedDataByLocation(confirmed);
     }
 
-    @RequestMapping("/deaths")
+    @RequestMapping("/api/locations/deaths")
     public List<LocationDeathData> getDeathsByGlobalLocation() {
         return dataService.deathDataByLocation(deaths);
     }
 
-    @RequestMapping("/recovered")
+    @RequestMapping("/api/locations/recovered")
     public List<LocationRecoveredData> getRecoveredByGlobalLocation() {
         return dataService.recoveredDataByLocation(recovered);
     }

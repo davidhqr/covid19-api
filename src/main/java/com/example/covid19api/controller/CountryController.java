@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
 import java.util.TreeMap;
 
 @RestController
@@ -24,8 +23,9 @@ public class CountryController {
         return countryService.groupProvincesToCountry(file);
     }
 
-    @RequestMapping("/locations")
-    public Set<Location> buildLocationsByProvinceState() {
+    @RequestMapping("/api/locations")
+    // Display individual province/state's information
+    public TreeMap<String, Location> buildLocationsByProvinceState() {
         return countryService.createLocations(file);
     }
 }

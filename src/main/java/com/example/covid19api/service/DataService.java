@@ -3,6 +3,8 @@ package com.example.covid19api.service;
 import com.example.covid19api.model.Coordinate;
 import com.example.covid19api.model.Country;
 import com.example.covid19api.model.LatestDataByCountry;
+import com.example.covid19api.model.LatestDataByCountryGrouped;
+import com.example.covid19api.model.LatestDataByLocation;
 import com.example.covid19api.model.LatestDataGlobal;
 import com.example.covid19api.model.LocationConfirmedData;
 import com.example.covid19api.model.LocationDeathData;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -60,6 +63,35 @@ public class DataService {
             }
         }
         return dataByCountry;
+    }
+
+    public void latestDataWithLocationsGrouped(String file) {
+        String countryTable = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
+        TreeMap<String, LatestDataByCountryGrouped> dataByCountryGrouped = new TreeMap<>();
+        List<String[]> data = ReadCSV.readCSVFile(file);
+        for (int i = 1; i < data.size(); i++) {
+            String[] row = data.get(i);
+            if (!dataByCountryGrouped.containsKey(row[3])) {
+                TreeMap<String, Country> countryMapResult = countryService.groupProvincesToCountry(countryTable);
+                Coordinate countryCoordinate = countryMapResult.get(row[3]).countryCoordinate;
+                LatestDataByCountryGrouped latestDataByCountryGrouped = new LatestDataByCountryGrouped(row[3],
+                                                                                                       countryCoordinate,
+                                                                                                       Integer.parseInt(row[7]),
+                                                                                                       Integer.parseInt(row[8]),
+                                                                                                       Integer.parseInt(row[9]),
+                                                                                                       Optional.of(new HashSet<>()));
+                dataByCountryGrouped.put(row[3], latestDataByCountryGrouped);
+
+                countryService.createLocations(countryTable);
+
+                dataByCountryGrouped.get(row[3]).latestDataByLocations.get()
+                                                                      .add(new LatestDataByLocation(row[2],
+                                                                                                    null,
+                                                                                                    Integer.parseInt(row[7]),
+                                                                                                    Integer.parseInt(row[8]),
+                                                                                                    Integer.parseInt(row[9])));
+            }
+        }
     }
 
     public List<LocationConfirmedData> confirmedDataByLocation(String file) {
