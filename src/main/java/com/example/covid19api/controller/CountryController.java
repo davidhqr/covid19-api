@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
 import java.util.TreeMap;
 
 @RestController
@@ -18,13 +17,15 @@ public class CountryController {
 
     String file = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
 
-    @RequestMapping("/countries")
+    @RequestMapping("/api/countries")
+    // Display all countries' information and its provinces/states
     public TreeMap<String, Country> getAllCountriesWithProvincesGrouped() {
         return countryService.groupProvincesToCountry(file);
     }
 
-    @RequestMapping("/locations")
-    public Set<Location> buildLocationsByProvinceState() {
+    @RequestMapping("/api/locations")
+    // Display individual province/state's information
+    public TreeMap<String, Location> buildLocationsByProvinceState() {
         return countryService.createLocations(file);
     }
 }

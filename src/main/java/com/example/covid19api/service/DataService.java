@@ -3,6 +3,10 @@ package com.example.covid19api.service;
 import com.example.covid19api.model.Coordinate;
 import com.example.covid19api.model.Country;
 import com.example.covid19api.model.LatestDataByCountry;
+import com.example.covid19api.model.LatestDataByCountryGrouped;
+import com.example.covid19api.model.LatestDataByLocation;
+import com.example.covid19api.model.LatestDataGlobal;
+import com.example.covid19api.model.Location;
 import com.example.covid19api.model.LocationConfirmedData;
 import com.example.covid19api.model.LocationDeathData;
 import com.example.covid19api.model.LocationRecoveredData;
@@ -11,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -20,6 +26,108 @@ public class DataService {
 
     @Autowired
     private CountryService countryService;
+
+    public LatestDataGlobal latestDataGlobal(String file) {
+        Collection<LatestDataByCountry> latestDataByCountry = latestDataByCountry(file).values();
+        int confirmed = 0;
+        int deaths = 0;
+        int recovered = 0;
+        for (LatestDataByCountry data : latestDataByCountry) {
+            confirmed += data.confirmed;
+            deaths += data.deaths;
+            recovered += data.recovered;
+        }
+        return new LatestDataGlobal(confirmed,
+                                    deaths,
+                                    recovered);
+    }
+
+    public TreeMap<String, LatestDataByCountry> latestDataByCountry(String file) {
+        String countryTable = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
+        TreeMap<String, LatestDataByCountry> dataByCountry = new TreeMap<>();
+        List<String[]> data = ReadCSV.readCSVFile(file);
+        for (int i = 1; i < data.size(); i++) {
+            String[] row = data.get(i);
+            if (!dataByCountry.containsKey(row[3])) {
+                TreeMap<String, Country> countryMapResult = countryService.groupProvincesToCountry(countryTable);
+                Coordinate countryCoordinate = countryMapResult.get(row[3]).countryCoordinate;
+                LatestDataByCountry latestDataByCountry = new LatestDataByCountry(row[3],
+                                                                                  countryCoordinate,
+                                                                                  Integer.parseInt(row[7]),
+                                                                                  Integer.parseInt(row[8]),
+                                                                                  Integer.parseInt(row[9]));
+                dataByCountry.put(row[3], latestDataByCountry);
+            } else {
+                dataByCountry.get(row[3]).confirmed += Integer.parseInt(row[7]);
+                dataByCountry.get(row[3]).deaths += Integer.parseInt(row[8]);
+                dataByCountry.get(row[3]).recovered += Integer.parseInt(row[9]);
+            }
+        }
+        return dataByCountry;
+    }
+
+    public TreeMap<String, LatestDataByCountryGrouped> latestDataWithLocationsGrouped(String file) {
+        String countryTable = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
+        TreeMap<String, LatestDataByCountryGrouped> dataByCountryGrouped = new TreeMap<>();
+        List<String[]> data = ReadCSV.readCSVFile(file);
+        for (int i = 1; i < data.size(); i++) {
+            String[] row = data.get(i);
+            if (!dataByCountryGrouped.containsKey(row[3])) {
+                TreeMap<String, Country> countryMapResult = countryService.groupProvincesToCountry(countryTable);
+                Coordinate countryCoordinate = countryMapResult.get(row[3]).countryCoordinate;
+
+                TreeMap<String, LatestDataByLocation> latestDataByLocationTreeMap = new TreeMap<>();
+                if (!row[2].equals("Recovered")) {
+                    if (!row[2].equals("")) {
+                        TreeMap<String, Location> locationMapResult = countryService.createLocations(countryTable);
+                        Coordinate locationCoordinate = locationMapResult.get(row[2]).coordinate;
+                        latestDataByLocationTreeMap.put(row[2], new LatestDataByLocation(row[2],
+                                                                                         locationCoordinate,
+                                                                                         Integer.parseInt(row[7]),
+                                                                                         Integer.parseInt(row[8]),
+                                                                                         Integer.parseInt(row[9])));
+                    }
+                }
+                LatestDataByCountryGrouped latestDataByCountryGrouped = new LatestDataByCountryGrouped(row[3],
+                                                                                                       countryCoordinate,
+                                                                                                       Integer.parseInt(row[7]),
+                                                                                                       Integer.parseInt(row[8]),
+                                                                                                       Integer.parseInt(row[9]),
+                                                                                                       Optional.of(
+                                                                                                               latestDataByLocationTreeMap));
+                dataByCountryGrouped.put(row[3], latestDataByCountryGrouped);
+            } else {
+                dataByCountryGrouped.get(row[3]).confirmed += Integer.parseInt(row[7]);
+                dataByCountryGrouped.get(row[3]).deaths += Integer.parseInt(row[8]);
+                dataByCountryGrouped.get(row[3]).recovered += Integer.parseInt(row[9]);
+
+                if (!row[2].equals("Recovered")) {
+                    if (!row[2].equals("")) {
+                        boolean provinceStateExistsInMap = dataByCountryGrouped.get(row[3]).latestDataByLocations
+                                .get()
+                                .containsKey(row[2]);
+
+                        if (!provinceStateExistsInMap) {
+                            TreeMap<String, Location> locationMapResult = countryService.createLocations(countryTable);
+                            Coordinate locationCoordinate = locationMapResult.get(row[2]).coordinate;
+                            dataByCountryGrouped.get(row[3]).latestDataByLocations
+                                    .get()
+                                    .put(row[2], new LatestDataByLocation(row[2],
+                                                                          locationCoordinate,
+                                                                          Integer.parseInt(row[7]),
+                                                                          Integer.parseInt(row[8]),
+                                                                          Integer.parseInt(row[9])));
+                        } else {
+                            dataByCountryGrouped.get(row[3]).latestDataByLocations.get().get(row[2]).confirmed += Integer.parseInt(row[7]);
+                            dataByCountryGrouped.get(row[3]).latestDataByLocations.get().get(row[2]).deaths += Integer.parseInt(row[8]);
+                            dataByCountryGrouped.get(row[3]).latestDataByLocations.get().get(row[2]).recovered += Integer.parseInt(row[9]);
+                        }
+                    }
+                }
+            }
+        }
+        return dataByCountryGrouped;
+    }
 
     public List<LocationConfirmedData> confirmedDataByLocation(String file) {
         List<LocationConfirmedData> locationConfirmedDataList = new ArrayList<>();
@@ -67,29 +175,5 @@ public class DataService {
             locationRecoveredDataList.add(locationRecoveredData);
         }
         return locationRecoveredDataList;
-    }
-
-    public TreeMap<String, LatestDataByCountry> latestDataByCountry(String file) {
-        String countryTable = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
-        TreeMap<String, LatestDataByCountry> dataByCountry = new TreeMap<>();
-        List<String[]> data = ReadCSV.readCSVFile(file);
-        for (int i = 1; i < data.size(); i++) {
-            String[] row = data.get(i);
-            if (!dataByCountry.containsKey(row[3])) {
-                TreeMap<String, Country> countryMapResult = countryService.groupProvincesToCountry(countryTable);
-                Coordinate countryCoordinate = countryMapResult.get(row[3]).countryCoordinate;
-                LatestDataByCountry latestDataByCountry = new LatestDataByCountry(row[3],
-                                                                                  countryCoordinate,
-                                                                                  Integer.parseInt(row[7]),
-                                                                                  Integer.parseInt(row[8]),
-                                                                                  Integer.parseInt(row[9]));
-                dataByCountry.put(row[3], latestDataByCountry);
-            } else {
-                dataByCountry.get(row[3]).confirmed += Integer.parseInt(row[7]);
-                dataByCountry.get(row[3]).deaths += Integer.parseInt(row[8]);
-                dataByCountry.get(row[3]).recovered += Integer.parseInt(row[9]);
-            }
-        }
-        return dataByCountry;
     }
 }

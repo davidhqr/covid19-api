@@ -10,31 +10,32 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TreeMap;
 
 @Service
 public class CountryService {
 
-    private int TABLE_LENGTH = 327;
+    private int TABLE_LENGTH = 348;
 
     // Create Location objects for each recorded province/state
-    public Set<Location> createLocations(String file) {
-        Set<Location> locations = new HashSet<>();
+    public TreeMap<String, Location> createLocations(String file) {
+        TreeMap<String, Location> locationTreeMap = new TreeMap<>();
         List<String[]> data = ReadCSV.readCSVFile(file);
         for (int i = 1; i < TABLE_LENGTH; i++) {
             String[] row = data.get(i);
-            if (!row[6].equals("Recovered")) {
-                Location country = new Location(row[7],
-                                                row[1],
-                                                row[2],
-                                                row[6],
-                                                new Coordinate(row[8],
-                                                               row[9]));
-                locations.add(country);
+            if (!row[6].equals("")) {
+                if (!row[6].equals("Recovered")) {
+                    Location location = new Location(row[7],
+                                                     row[1],
+                                                     row[2],
+                                                     row[6],
+                                                     new Coordinate(row[8],
+                                                                    row[9]));
+                    locationTreeMap.put(row[6], location);
+                }
             }
         }
-        return locations;
+        return locationTreeMap;
     }
 
     // Country object contains all of the countries' recorded provinces/states and their coordinates
@@ -49,6 +50,7 @@ public class CountryService {
                                                    row[2],
                                                    new Coordinate(row[8],
                                                                   row[9]),
+                                                   Integer.parseInt(row[row.length - 1].equals("") ? "0" : row[row.length - 1]),
                                                    Optional.of(new HashSet<>())));
             } else {
                 if (!row[6].equals("Recovered")) {

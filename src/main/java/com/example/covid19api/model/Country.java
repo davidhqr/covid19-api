@@ -16,17 +16,21 @@ public class Country {
 
     public Coordinate countryCoordinate;
 
+    public Integer population;
+
     public Optional<Set<ProvinceStateLocation>> provinceState;
 
     public Country(String country,
                    String iso2,
                    String iso3,
                    Coordinate countryCoordinates,
+                   Integer population,
                    Optional<Set<ProvinceStateLocation>> provinceState) {
         this.country = country;
         this.iso2 = iso2;
         this.iso3 = iso3;
         this.countryCoordinate = countryCoordinates;
+        this.population = population;
         this.provinceState = provinceState;
     }
 }
