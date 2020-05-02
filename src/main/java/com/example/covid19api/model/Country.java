@@ -2,35 +2,46 @@ package com.example.covid19api.model;
 
 import lombok.Data;
 
-import java.util.Optional;
-import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "country")
 @Data
 public class Country {
 
-    public String country;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
+
+    public String countryName;
 
     public String iso2;
 
     public String iso3;
 
-    public Coordinate countryCoordinate;
+    public String latitude;
+
+    public String longitude;
 
     public Integer population;
 
-    public Optional<Set<ProvinceStateLocation>> provinceState;
-
-    public Country(String country,
+    public Country(String countryName,
                    String iso2,
                    String iso3,
-                   Coordinate countryCoordinates,
-                   Integer population,
-                   Optional<Set<ProvinceStateLocation>> provinceState) {
-        this.country = country;
+                   String latitude,
+                   String longitude,
+                   Integer population) {
+        this.countryName = countryName;
         this.iso2 = iso2;
         this.iso3 = iso3;
-        this.countryCoordinate = countryCoordinates;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.population = population;
-        this.provinceState = provinceState;
     }
+
+    public Country() {}
 }
