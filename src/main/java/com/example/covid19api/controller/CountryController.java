@@ -1,6 +1,7 @@
 package com.example.covid19api.controller;
 
 import com.example.covid19api.controller.dto.CountryDetailsDto;
+import com.example.covid19api.controller.dto.ProvinceStateLocationDetailsDto;
 import com.example.covid19api.model.Country;
 import com.example.covid19api.service.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +38,10 @@ public class CountryController {
     @RequestMapping(path = "/api/countries/{country}/details")
     public CountryDetailsDto findCountryDetails(@PathVariable String country) {
         return countryService.findCountryDetails(country);
+    }
+
+    @RequestMapping(path = "/api/countries/{country}/{provinceState}")
+    public ProvinceStateLocationDetailsDto findCountryDetails(@PathVariable String country, @PathVariable String provinceState) {
+        return countryService.findProvinceState(country, provinceState);
     }
 }

@@ -10,4 +10,6 @@ import java.util.List;
 public interface ProvinceStateLocationRepository extends JpaRepository<ProvinceStateLocation, Long> {
 
     List<ProvinceStateLocation> findByCountryId(Long countryId);
+
+    ProvinceStateLocation findByProvinceState(String provinceState);
 }

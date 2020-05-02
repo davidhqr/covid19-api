@@ -18,7 +18,7 @@ public class CountryDetailsDto {
 
     public Integer population;
 
-    public List<ProvinceStateLocationDto> provinceStateLocationDtoList;
+    public List<ProvinceStateLocationDto> provinceStatesLocationList;
 
     public CountryDetailsDto(Long id,
                              String countryName,
@@ -27,7 +27,7 @@ public class CountryDetailsDto {
                              String latitude,
                              String longitude,
                              Integer population,
-                             List<ProvinceStateLocationDto> provinceStateLocationDtoList) {
+                             List<ProvinceStateLocationDto> provinceStatesLocationList) {
         this.id = id;
         this.countryName = countryName;
         this.iso2 = iso2;
@@ -35,6 +35,6 @@ public class CountryDetailsDto {
         this.latitude = latitude;
         this.longitude = longitude;
         this.population = population;
-        this.provinceStateLocationDtoList = provinceStateLocationDtoList;
+        this.provinceStatesLocationList = provinceStatesLocationList;
     }
 }
