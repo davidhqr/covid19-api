@@ -1,6 +1,7 @@
 package com.example.covid19api.service;
 
 import com.example.covid19api.controller.dto.CountryDetailsDto;
+import com.example.covid19api.controller.dto.ProvinceStateLocationDetailsDto;
 import com.example.covid19api.controller.dto.ProvinceStateLocationDto;
 import com.example.covid19api.model.Country;
 import com.example.covid19api.model.ProvinceStateLocation;
@@ -63,13 +64,13 @@ public class CountryService {
 
     public CountryDetailsDto findCountryDetails(String countryName) {
         Country country = countryGeographicRepository.findByCountryName(countryName);
-        List<ProvinceStateLocation> provinceState = provinceStateLocationRepository.findByCountryId(country.id);
+        List<ProvinceStateLocation> provinceStateList = provinceStateLocationRepository.findByCountryId(country.id);
         List<ProvinceStateLocationDto> provinceStateLocationDtoList =
-                provinceState.stream()
-                             .map(provinceStateLocation -> new ProvinceStateLocationDto(provinceStateLocation.provinceState,
-                                                                                        provinceStateLocation.latitude,
-                                                                                        provinceStateLocation.longitude))
-                             .collect(Collectors.toList());
+                provinceStateList.stream()
+                                 .map(provinceStateLocation -> new ProvinceStateLocationDto(provinceStateLocation.provinceState,
+                                                                                            provinceStateLocation.latitude,
+                                                                                            provinceStateLocation.longitude))
+                                 .collect(Collectors.toList());
         return new CountryDetailsDto(country.id,
                                      country.countryName,
                                      country.iso2,
@@ -79,4 +80,17 @@ public class CountryService {
                                      country.population,
                                      provinceStateLocationDtoList);
     }
+
+    public ProvinceStateLocationDetailsDto findProvinceState(String countryName, String provinceState) {
+        ProvinceStateLocation provinceStateLocation = provinceStateLocationRepository.findByProvinceState(provinceState);
+        Country country = countryGeographicRepository.findByCountryName(countryName);
+        return new ProvinceStateLocationDetailsDto(country.id,
+                                                   country.countryName,
+                                                   country.iso2,
+                                                   country.iso3,
+                                                   provinceStateLocation.provinceState,
+                                                   provinceStateLocation.latitude,
+                                                   provinceStateLocation.longitude);
+    }
+
 }
