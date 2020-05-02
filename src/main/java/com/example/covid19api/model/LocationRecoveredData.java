@@ -8,17 +8,21 @@ public class LocationRecoveredData {
 
     public Optional<String> provinceState;
 
-    public Coordinate locationCoordinate;
+    public String latitude;
+
+    public String longitude;
 
     public int recovered;
 
     public LocationRecoveredData(String country,
                                  Optional<String> provinceState,
-                                 Coordinate locationCoordinate,
+                                 String latitude,
+                                 String longitude,
                                  int recovered) {
         this.country = country;
         this.provinceState = provinceState;
-        this.locationCoordinate = locationCoordinate;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.recovered = recovered;
     }
 }

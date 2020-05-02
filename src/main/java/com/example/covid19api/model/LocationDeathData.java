@@ -8,17 +8,21 @@ public class LocationDeathData {
 
     public Optional<String> provinceState;
 
-    public Coordinate locationCoordinate;
+    public String latitude;
+
+    public String longitude;
 
     public int deaths;
 
     public LocationDeathData(String country,
-                                 Optional<String> provinceState,
-                                 Coordinate locationCoordinate,
-                                 int deaths) {
+                             Optional<String> provinceState,
+                             String latitude,
+                             String longitude,
+                             int deaths) {
         this.country = country;
         this.provinceState = provinceState;
-        this.locationCoordinate = locationCoordinate;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.deaths = deaths;
     }
 }

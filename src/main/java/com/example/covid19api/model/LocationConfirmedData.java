@@ -11,17 +11,21 @@ public class LocationConfirmedData {
 
     public Optional<String> provinceState;
 
-    public Coordinate locationCoordinate;
+    public String latitude;
+
+    public String longitude;
 
     public int confirmed;
 
     public LocationConfirmedData(String country,
                                  Optional<String> provinceState,
-                                 Coordinate locationCoordinate,
+                                 String latitude,
+                                 String longitude,
                                  int confirmed) {
         this.country = country;
         this.provinceState = provinceState;
-        this.locationCoordinate = locationCoordinate;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.confirmed = confirmed;
     }
 }

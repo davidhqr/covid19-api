@@ -1,67 +1,82 @@
 package com.example.covid19api.service;
 
-import com.example.covid19api.model.Coordinate;
+import com.example.covid19api.controller.dto.CountryDetailsDto;
+import com.example.covid19api.controller.dto.ProvinceStateLocationDto;
 import com.example.covid19api.model.Country;
-import com.example.covid19api.model.Location;
 import com.example.covid19api.model.ProvinceStateLocation;
+import com.example.covid19api.repository.CountryGeographicRepository;
+import com.example.covid19api.repository.ProvinceStateLocationRepository;
 import com.example.covid19api.utils.ReadCSV;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @Service
 public class CountryService {
 
-    private int TABLE_LENGTH = 348;
+    @Autowired
+    private CountryGeographicRepository countryGeographicRepository;
 
-    // Create Location objects for each recorded province/state
-    public TreeMap<String, Location> createLocations(String file) {
-        TreeMap<String, Location> locationTreeMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    @Autowired
+    private ProvinceStateLocationRepository provinceStateLocationRepository;
+
+
+    public void saveCountry(String file) {
         List<String[]> data = ReadCSV.readCSVFile(file);
+        int TABLE_LENGTH = 348;
         for (int i = 1; i < TABLE_LENGTH; i++) {
             String[] row = data.get(i);
-            if (!row[6].equals("")) {
-                if (!row[6].equals("Recovered")) {
-                    Location location = new Location(row[7],
-                                                     row[1],
-                                                     row[2],
-                                                     row[6],
-                                                     new Coordinate(row[8],
-                                                                    row[9]));
-                    locationTreeMap.put(row[6], location);
+            String countryName = row[7];
+            Country countryResult = countryGeographicRepository.findByCountryName(countryName);
+            if (countryResult == null) {
+                Country country = new Country(row[7],
+                                              row[1],
+                                              row[2],
+                                              row[8],
+                                              row[9],
+                                              Integer.parseInt(row[row.length - 1].equals("") ? "0" : row[row.length - 1]));
+                countryGeographicRepository.save(country);
+            } else {
+                if (!row[6].equals("")) {
+                    if (!row[6].equals("Recovered")) {
+                        ProvinceStateLocation provinceStateLocation = new ProvinceStateLocation(countryResult,
+                                                                                                row[6],
+                                                                                                row[8],
+                                                                                                row[9]);
+                        provinceStateLocationRepository.save(provinceStateLocation);
+                    }
+
                 }
             }
         }
-        return locationTreeMap;
     }
 
-    // Country object contains all of the countries' recorded provinces/states and their coordinates
-    public TreeMap<String, Country> groupProvincesToCountry(String file) {
-        TreeMap<String, Country> countryMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        List<String[]> data = ReadCSV.readCSVFile(file);
-        for (int i = 1; i < TABLE_LENGTH; i++) {
-            String[] row = data.get(i);
-            if (!countryMap.containsKey(row[7])) {
-                countryMap.put(row[7], new Country(row[7],
-                                                   row[1],
-                                                   row[2],
-                                                   new Coordinate(row[8],
-                                                                  row[9]),
-                                                   Integer.parseInt(row[row.length - 1].equals("") ? "0" : row[row.length - 1]),
-                                                   Optional.of(new HashSet<>())));
-            } else {
-                if (!row[6].equals("Recovered")) {
-                    ProvinceStateLocation provinceStateLocation = new ProvinceStateLocation(row[6],
-                                                                                            new Coordinate(row[8],
-                                                                                                           row[9]));
-                    countryMap.get(row[7]).provinceState.get()
-                                                        .add(provinceStateLocation);
-                }
-            }
-        }
-        return countryMap;
+    public List<Country> findAllCountries() {
+        return countryGeographicRepository.findAll();
+    }
+
+    public Country findCountry(String countryName) {
+        return countryGeographicRepository.findByCountryName(countryName);
+    }
+
+    public CountryDetailsDto findCountryDetails(String countryName) {
+        Country country = countryGeographicRepository.findByCountryName(countryName);
+        List<ProvinceStateLocation> provinceState = provinceStateLocationRepository.findByCountryId(country.id);
+        List<ProvinceStateLocationDto> provinceStateLocationDtoList =
+                provinceState.stream()
+                             .map(provinceStateLocation -> new ProvinceStateLocationDto(provinceStateLocation.provinceState,
+                                                                                        provinceStateLocation.latitude,
+                                                                                        provinceStateLocation.longitude))
+                             .collect(Collectors.toList());
+        return new CountryDetailsDto(country.id,
+                                     country.countryName,
+                                     country.iso2,
+                                     country.iso3,
+                                     country.latitude,
+                                     country.longitude,
+                                     country.population,
+                                     provinceStateLocationDtoList);
     }
 }

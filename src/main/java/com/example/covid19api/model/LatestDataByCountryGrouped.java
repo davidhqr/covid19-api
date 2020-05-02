@@ -7,7 +7,9 @@ public class LatestDataByCountryGrouped {
 
     public String country;
 
-    public Coordinate countryCoordinate;
+    public String latitude;
+
+    public String longitude;
 
     public Integer confirmed;
 
@@ -18,13 +20,15 @@ public class LatestDataByCountryGrouped {
     public Optional<TreeMap<String, LatestDataByLocation>> latestDataByLocations;
 
     public LatestDataByCountryGrouped(String country,
-                                      Coordinate countryCoordinate,
+                                      String latitude,
+                                      String longitude,
                                       Integer confirmed,
                                       Integer deaths,
                                       Integer recovered,
                                       Optional<TreeMap<String, LatestDataByLocation>> latestDataByLocations) {
         this.country = country;
-        this.countryCoordinate = countryCoordinate;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.confirmed = confirmed;
         this.deaths = deaths;
         this.recovered = recovered;

@@ -7,7 +7,9 @@ public class LatestDataByCountry {
 
     public String country;
 
-    public Coordinate countryCoordinate;
+    public String latitude;
+
+    public String longitude;
 
     public Integer confirmed;
 
@@ -16,12 +18,14 @@ public class LatestDataByCountry {
     public Integer recovered;
 
     public LatestDataByCountry(String country,
-                               Coordinate countryCoordinate,
+                               String latitude,
+                               String longitude,
                                Integer confirmed,
                                Integer deaths,
                                Integer recovered) {
         this.country = country;
-        this.countryCoordinate = countryCoordinate;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.confirmed = confirmed;
         this.deaths = deaths;
         this.recovered = recovered;

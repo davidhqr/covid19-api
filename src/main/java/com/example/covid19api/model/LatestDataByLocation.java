@@ -4,7 +4,9 @@ public class LatestDataByLocation {
 
     public String provinceState;
 
-    public Coordinate provinceStateCoordinate;
+    public String latitude;
+
+    public String longitude;
 
     public Integer confirmed;
 
@@ -13,12 +15,14 @@ public class LatestDataByLocation {
     public Integer recovered;
 
     public LatestDataByLocation(String provinceState,
-                                Coordinate provinceStateCoordinate,
+                                String latitude,
+                                String longitude,
                                 Integer confirmed,
                                 Integer deaths,
                                 Integer recovered) {
         this.provinceState = provinceState;
-        this.provinceStateCoordinate = provinceStateCoordinate;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.confirmed = confirmed;
         this.deaths = deaths;
         this.recovered = recovered;

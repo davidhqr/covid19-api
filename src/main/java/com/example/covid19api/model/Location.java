@@ -16,17 +16,21 @@ public class Location {
 
     public String provinceState;
 
-    public Coordinate coordinate;
+    public String latitude;
+
+    public String longitude;
 
     public Location(String country,
                     String iso2,
                     String iso3,
                     String provinceState,
-                    Coordinate coordinate) {
+                    String latitude,
+                    String longitude) {
         this.country = country;
         this.iso2 = iso2;
         this.iso3 = iso3;
         this.provinceState = provinceState;
-        this.coordinate = coordinate;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 }
