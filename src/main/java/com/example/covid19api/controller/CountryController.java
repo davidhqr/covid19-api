@@ -1,7 +1,7 @@
 package com.example.covid19api.controller;
 
 import com.example.covid19api.controller.dto.CountryDetailsDto;
-import com.example.covid19api.controller.dto.ProvinceStateLocationDetailsDto;
+import com.example.covid19api.controller.dto.CountryProvinceStateLocationDto;
 import com.example.covid19api.model.Country;
 import com.example.covid19api.service.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class CountryController {
@@ -19,7 +20,7 @@ public class CountryController {
 
     String file = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
 
-    // Need to implement a scheduled job
+    // Need to implement a scheduled job to save once
     @RequestMapping("/save-country")
     public void saveCountry() {
         countryService.saveCountry(file);
@@ -31,7 +32,7 @@ public class CountryController {
     }
 
     @RequestMapping(path = "/api/countries/{country}")
-    public Country findCountryByName(@PathVariable String country) {
+    public Optional<Country> findCountryByName(@PathVariable String country) {
         return countryService.findCountry(country);
     }
 
@@ -41,7 +42,7 @@ public class CountryController {
     }
 
     @RequestMapping(path = "/api/countries/{country}/{provinceState}")
-    public ProvinceStateLocationDetailsDto findCountryDetails(@PathVariable String country, @PathVariable String provinceState) {
+    public CountryProvinceStateLocationDto findCountryDetails(@PathVariable String country, @PathVariable String provinceState) {
         return countryService.findProvinceState(country, provinceState);
     }
 }
