@@ -4,8 +4,10 @@ import com.example.covid19api.model.Country;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface CountryGeographicRepository extends JpaRepository<Country, Long> {
+import java.util.Optional;
 
-    Country findByCountryName(String countryName);
+@Repository
+public interface CountryRepository extends JpaRepository<Country, Long> {
+
+    Optional<Country> findByCountryName(String countryName);
 }

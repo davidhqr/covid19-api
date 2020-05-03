@@ -1,29 +1,58 @@
-//package com.example.covid19api.service;
-//
-//import com.example.covid19api.model.Country;
-//import com.example.covid19api.model.LatestDataByCountry;
-//import com.example.covid19api.model.LatestDataByCountryGrouped;
-//import com.example.covid19api.model.LatestDataByLocation;
-//import com.example.covid19api.model.LatestDataGlobal;
-//import com.example.covid19api.model.Location;
-//import com.example.covid19api.model.LocationConfirmedData;
-//import com.example.covid19api.model.LocationDeathData;
-//import com.example.covid19api.model.LocationRecoveredData;
-//import com.example.covid19api.utils.ReadCSV;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//
-//import java.util.ArrayList;
-//import java.util.Collection;
-//import java.util.List;
-//import java.util.Optional;
-//import java.util.TreeMap;
-//
-//@Service
-//public class DataService {
-//
-//    @Autowired
-//    private CountryService countryService;
+package com.example.covid19api.service;
+
+import com.example.covid19api.model.Country;
+import com.example.covid19api.repository.CountryRepository;
+import com.example.covid19api.utils.ReadCSV;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.List;
+
+@Service
+public class DataService {
+
+    @Autowired
+    private CountryService countryService;
+
+    @Autowired
+    private CountryRepository countryRepository;
+
+    public void saveCountryData(String file) {
+        List<String[]> data = ReadCSV.readCSVFile(file);
+        for (int i = 1; i < data.size(); i++) {
+            String[] row = data.get(i);
+            Country countryResult = countryService.findCountry(row[3])
+                                                  .orElseThrow(() -> new EntityNotFoundException("country " + row[7] + " is not found"));
+            int confirmed = countryResult.confirmed;
+            int deaths = countryResult.deaths;
+            int recovered = countryResult.recovered;
+            int active = countryResult.active;
+
+            confirmed += Integer.parseInt(row[7]);
+            deaths += Integer.parseInt(row[8]);
+            recovered += Integer.parseInt(row[9]);
+            active += Integer.parseInt(row[10]);
+
+            countryResult.setConfirmed(confirmed);
+            countryResult.setDeaths(deaths);
+            countryResult.setRecovered(recovered);
+            countryResult.setActive(active);
+            countryRepository.save(countryResult);
+        }
+    }
+
+    public void resetCountryData() {
+        countryRepository.findAll()
+                         .forEach(country -> {
+                             country.setConfirmed(0);
+                             country.setDeaths(0);
+                             country.setRecovered(0);
+                             country.setActive(0);
+                             countryRepository.save(country);
+                         });
+    }
+}
 //
 //    public LatestDataGlobal latestDataGlobal(String file) {
 //        Collection<LatestDataByCountry> latestDataByCountry = latestDataByCountry(file).values();

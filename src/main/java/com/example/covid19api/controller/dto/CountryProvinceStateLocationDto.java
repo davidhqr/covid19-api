@@ -1,6 +1,6 @@
 package com.example.covid19api.controller.dto;
 
-public class ProvinceStateLocationDetailsDto {
+public class CountryProvinceStateLocationDto {
 
     public Long countryId;
 
@@ -16,7 +16,7 @@ public class ProvinceStateLocationDetailsDto {
 
     public String longitude;
 
-    public ProvinceStateLocationDetailsDto(Long countryId,
+    public CountryProvinceStateLocationDto(Long countryId,
                                            String countryName,
                                            String iso2,
                                            String iso3,
