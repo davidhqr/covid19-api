@@ -1,6 +1,7 @@
 package com.example.covid19api.service;
 
 import com.example.covid19api.controller.dto.CountryDetailsGeographicInfoDto;
+import com.example.covid19api.controller.dto.CountryGeographicInfoDto;
 import com.example.covid19api.controller.dto.CountryProvinceStateGeographicInfoDto;
 import com.example.covid19api.controller.dto.ProvinceStateGeographicInfoDto;
 import com.example.covid19api.model.Country;
@@ -59,17 +60,35 @@ public class CountryService {
         }
     }
 
-    public List<Country> findAllCountries() {
-        return countryRepository.findAll();
+    public List<CountryGeographicInfoDto> findAllCountries() {
+        List<Country> countries = countryRepository.findAll();
+        return countries.stream()
+                        .map(country ->
+                                     new CountryGeographicInfoDto(country.id,
+                                                                  country.countryName,
+                                                                  country.iso2,
+                                                                  country.iso3,
+                                                                  country.latitude,
+                                                                  country.longitude,
+                                                                  country.population))
+                        .collect(Collectors.toList());
     }
 
-    public Country findCountry(String countryName) {
-        return countryRepository.findByCountryName(countryName)
-                                .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
+    public CountryGeographicInfoDto findCountry(String countryName) {
+        Country country = countryRepository.findByCountryName(countryName)
+                                           .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
+        return new CountryGeographicInfoDto(country.id,
+                                            country.countryName,
+                                            country.iso2,
+                                            country.iso3,
+                                            country.latitude,
+                                            country.longitude,
+                                            country.population);
     }
 
     public CountryDetailsGeographicInfoDto findCountryDetails(String countryName) {
-        Country country = findCountry(countryName);
+        Country country = countryRepository.findByCountryName(countryName)
+                                           .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
         List<ProvinceStateLocation> provinceStateList =
                 provinceStateRepository.findByCountryId(country.id)
                                        .orElseThrow(() -> new EntityNotFoundException("provinces/states are not found for " + countryName));
@@ -90,7 +109,8 @@ public class CountryService {
     }
 
     public CountryProvinceStateGeographicInfoDto findProvinceState(String countryName, String provinceState) {
-        Country country = findCountry(countryName);
+        Country country = countryRepository.findByCountryName(countryName)
+                                           .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
         ProvinceStateLocation provinceStateLocation =
                 provinceStateRepository.findByCountryIdAndProvinceState(country.id, provinceState)
                                        .orElseThrow(() -> new EntityNotFoundException(

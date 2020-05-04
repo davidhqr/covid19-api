@@ -1,6 +1,6 @@
 package com.example.covid19api.controller.dto;
 
-public class LatestGlobalDataDto {
+public class GlobalDataDto {
 
     public Integer confirmed;
 
@@ -10,10 +10,10 @@ public class LatestGlobalDataDto {
 
     public Integer active;
 
-    public LatestGlobalDataDto(Integer confirmed,
-                               Integer deaths,
-                               Integer recovered,
-                               Integer active) {
+    public GlobalDataDto(Integer confirmed,
+                         Integer deaths,
+                         Integer recovered,
+                         Integer active) {
         this.confirmed = confirmed;
         this.deaths = deaths;
         this.recovered = recovered;

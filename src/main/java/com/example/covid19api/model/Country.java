@@ -51,38 +51,6 @@ public class Country {
         this.population = population;
     }
 
-    public Country(String countryName,
-                   String iso2,
-                   String iso3,
-                   String latitude,
-                   String longitude,
-                   int population,
-                   int confirmed,
-                   int deaths,
-                   int recovered,
-                   int active) {
-        this.countryName = countryName;
-        this.iso2 = iso2;
-        this.iso3 = iso3;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.population = population;
-        this.confirmed = confirmed;
-        this.deaths = deaths;
-        this.recovered = recovered;
-        this.active = active;
-    }
-
-    public Country(int confirmed,
-                   int deaths,
-                   int recovered,
-                   int active) {
-        this.confirmed = confirmed;
-        this.deaths = deaths;
-        this.recovered = recovered;
-        this.active = active;
-    }
-
     public Country() {
     }
 

@@ -47,24 +47,6 @@ public class ProvinceStateLocation {
         this.longitude = longitude;
     }
 
-    public ProvinceStateLocation(Country country,
-                                 String provinceState,
-                                 String latitude,
-                                 String longitude,
-                                 int confirmed,
-                                 int deaths,
-                                 int recovered,
-                                 int active) {
-        this.country = country;
-        this.provinceState = provinceState;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.confirmed = confirmed;
-        this.deaths = deaths;
-        this.recovered = recovered;
-        this.active = active;
-    }
-
     public ProvinceStateLocation() {}
 
     public void setId(long id) {

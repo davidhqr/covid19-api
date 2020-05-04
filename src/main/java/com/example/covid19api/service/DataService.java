@@ -1,6 +1,9 @@
 package com.example.covid19api.service;
 
-import com.example.covid19api.controller.dto.LatestGlobalDataDto;
+import com.example.covid19api.controller.dto.CountryDetailsDataDto;
+import com.example.covid19api.controller.dto.CountryProvinceStateDataDto;
+import com.example.covid19api.controller.dto.GlobalDataDto;
+import com.example.covid19api.controller.dto.ProvinceStateDataDto;
 import com.example.covid19api.model.Country;
 import com.example.covid19api.model.ProvinceStateLocation;
 import com.example.covid19api.repository.CountryRepository;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 public class DataService {
@@ -96,7 +100,7 @@ public class DataService {
         }
     }
 
-    public LatestGlobalDataDto getLatestDataGlobal() {
+    public GlobalDataDto getLatestDataGlobal() {
         AtomicInteger confirmed = new AtomicInteger();
         AtomicInteger deaths = new AtomicInteger();
         AtomicInteger recovered = new AtomicInteger();
@@ -111,104 +115,67 @@ public class DataService {
             active.addAndGet(country.active);
         });
 
-        return new LatestGlobalDataDto(confirmed.intValue(),
-                                       deaths.intValue(),
-                                       recovered.intValue(),
-                                       active.intValue());
+        return new GlobalDataDto(confirmed.intValue(),
+                                 deaths.intValue(),
+                                 recovered.intValue(),
+                                 active.intValue());
     }
 
     public List<Country> getLatestDataForAllCountries() {
         return countryRepository.findAll();
     }
+
+    public Country getLatestDataByCountry(String countryName) {
+        return countryRepository.findByCountryName(countryName)
+                                .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
+    }
+
+    public CountryDetailsDataDto getLatestDataByCountryWithDetails(String countryName) {
+        Country country = getLatestDataByCountry(countryName);
+        List<ProvinceStateLocation> provinceStateList =
+                provinceStateRepository.findByCountryId(country.id)
+                                       .orElseThrow(() -> new EntityNotFoundException("provinces/states are not found for " + countryName));
+        List<ProvinceStateDataDto> provinceStateDataDtoList = provinceStateList.stream()
+                                                                               .map(provinceStateLocation -> new ProvinceStateDataDto(
+                                                                                       provinceStateLocation.provinceState,
+                                                                                       provinceStateLocation.latitude,
+                                                                                       provinceStateLocation.longitude,
+                                                                                       provinceStateLocation.confirmed,
+                                                                                       provinceStateLocation.deaths,
+                                                                                       provinceStateLocation.recovered,
+                                                                                       provinceStateLocation.active))
+                                                                               .collect(Collectors.toList());
+        return new CountryDetailsDataDto(country.id,
+                                         country.countryName,
+                                         country.iso2,
+                                         country.iso3,
+                                         country.latitude,
+                                         country.longitude,
+                                         country.population,
+                                         provinceStateDataDtoList);
+    }
+
+    public CountryProvinceStateDataDto getLatestDataByProvinceState(String countryName, String provinceState) {
+        Country country = getLatestDataByCountry(countryName);
+        ProvinceStateLocation provinceStateLocation =
+                provinceStateRepository.findByCountryIdAndProvinceState(country.id, provinceState)
+                                       .orElseThrow(() -> new EntityNotFoundException(
+                                               "province/state " + provinceState + " is not found for " + countryName));
+        return new CountryProvinceStateDataDto(country.id,
+                                               country.countryName,
+                                               country.iso2,
+                                               country.iso3,
+                                               provinceStateLocation.provinceState,
+                                               provinceStateLocation.latitude,
+                                               provinceStateLocation.longitude,
+                                               provinceStateLocation.confirmed,
+                                               provinceStateLocation.deaths,
+                                               provinceStateLocation.recovered,
+                                               provinceStateLocation.active);
+
+    }
 }
 
-//
-//    public TreeMap<String, LatestDataByCountry> latestDataByCountry(String file) {
-//        String countryTable = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
-//        TreeMap<String, LatestDataByCountry> dataByCountry = new TreeMap<>();
-//        List<String[]> data = ReadCSV.readCSVFile(file);
-//        for (int i = 1; i < data.size(); i++) {
-//            String[] row = data.get(i);
-//            if (!dataByCountry.containsKey(row[3])) {
-//                TreeMap<String, Country> countryMapResult = countryService.groupProvincesToCountry(countryTable);
-//                Coordinate countryCoordinate = countryMapResult.get(row[3]).countryCoordinate;
-//                LatestDataByCountry latestDataByCountry = new LatestDataByCountry(row[3],
-//                                                                                  countryCoordinate,
-//                                                                                  Integer.parseInt(row[7]),
-//                                                                                  Integer.parseInt(row[8]),
-//                                                                                  Integer.parseInt(row[9]));
-//                dataByCountry.put(row[3], latestDataByCountry);
-//            } else {
-//                dataByCountry.get(row[3]).confirmed += Integer.parseInt(row[7]);
-//                dataByCountry.get(row[3]).deaths += Integer.parseInt(row[8]);
-//                dataByCountry.get(row[3]).recovered += Integer.parseInt(row[9]);
-//            }
-//        }
-//        return dataByCountry;
-//    }
-//
-//    public TreeMap<String, LatestDataByCountryGrouped> latestDataWithLocationsGrouped(String file) {
-//        String countryTable = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
-//        TreeMap<String, LatestDataByCountryGrouped> dataByCountryGrouped = new TreeMap<>();
-//        List<String[]> data = ReadCSV.readCSVFile(file);
-//        for (int i = 1; i < data.size(); i++) {
-//            String[] row = data.get(i);
-//            if (!dataByCountryGrouped.containsKey(row[3])) {
-//                TreeMap<String, Country> countryMapResult = countryService.groupProvincesToCountry(countryTable);
-//                Coordinate countryCoordinate = countryMapResult.get(row[3]).countryCoordinate;
-//
-//                TreeMap<String, LatestDataByLocation> latestDataByLocationTreeMap = new TreeMap<>();
-//                if (!row[2].equals("Recovered")) {
-//                    if (!row[2].equals("")) {
-//                        TreeMap<String, Location> locationMapResult = countryService.createLocations(countryTable);
-//                        Coordinate locationCoordinate = locationMapResult.get(row[2]).coordinate;
-//                        latestDataByLocationTreeMap.put(row[2], new LatestDataByLocation(row[2],
-//                                                                                         locationCoordinate,
-//                                                                                         Integer.parseInt(row[7]),
-//                                                                                         Integer.parseInt(row[8]),
-//                                                                                         Integer.parseInt(row[9])));
-//                    }
-//                }
-//                LatestDataByCountryGrouped latestDataByCountryGrouped = new LatestDataByCountryGrouped(row[3],
-//                                                                                                       countryCoordinate,
-//                                                                                                       Integer.parseInt(row[7]),
-//                                                                                                       Integer.parseInt(row[8]),
-//                                                                                                       Integer.parseInt(row[9]),
-//                                                                                                       Optional.of(
-//                                                                                                               latestDataByLocationTreeMap));
-//                dataByCountryGrouped.put(row[3], latestDataByCountryGrouped);
-//            } else {
-//                dataByCountryGrouped.get(row[3]).confirmed += Integer.parseInt(row[7]);
-//                dataByCountryGrouped.get(row[3]).deaths += Integer.parseInt(row[8]);
-//                dataByCountryGrouped.get(row[3]).recovered += Integer.parseInt(row[9]);
-//
-//                if (!row[2].equals("Recovered")) {
-//                    if (!row[2].equals("")) {
-//                        boolean provinceStateExistsInMap = dataByCountryGrouped.get(row[3]).latestDataByLocations
-//                                .get()
-//                                .containsKey(row[2]);
-//
-//                        if (!provinceStateExistsInMap) {
-//                            TreeMap<String, Location> locationMapResult = countryService.createLocations(countryTable);
-//                            Coordinate locationCoordinate = locationMapResult.get(row[2]).coordinate;
-//                            dataByCountryGrouped.get(row[3]).latestDataByLocations
-//                                    .get()
-//                                    .put(row[2], new LatestDataByLocation(row[2],
-//                                                                          locationCoordinate,
-//                                                                          Integer.parseInt(row[7]),
-//                                                                          Integer.parseInt(row[8]),
-//                                                                          Integer.parseInt(row[9])));
-//                        } else {
-//                            dataByCountryGrouped.get(row[3]).latestDataByLocations.get().get(row[2]).confirmed += Integer.parseInt(row[7]);
-//                            dataByCountryGrouped.get(row[3]).latestDataByLocations.get().get(row[2]).deaths += Integer.parseInt(row[8]);
-//                            dataByCountryGrouped.get(row[3]).latestDataByLocations.get().get(row[2]).recovered += Integer.parseInt(row[9]);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return dataByCountryGrouped;
-//    }
 //
 //    public List<LocationConfirmedData> confirmedDataByLocation(String file) {
 //        List<LocationConfirmedData> locationConfirmedDataList = new ArrayList<>();
