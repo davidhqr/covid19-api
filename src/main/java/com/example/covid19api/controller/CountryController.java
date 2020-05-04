@@ -22,8 +22,8 @@ public class CountryController {
 
     // Need to implement a scheduled job to save once
     @RequestMapping("/save-country")
-    public void saveCountry() {
-        countryService.saveCountry(file);
+    public void saveCountryAndProvinceState() {
+        countryService.saveCountryAndProvinceState(file);
     }
 
     @RequestMapping("/api/countries")
@@ -42,7 +42,7 @@ public class CountryController {
     }
 
     @RequestMapping(path = "/api/countries/{country}/{provinceState}")
-    public CountryProvinceStateLocationDto findCountryDetails(@PathVariable String country, @PathVariable String provinceState) {
+    public CountryProvinceStateLocationDto findProvinceState(@PathVariable String country, @PathVariable String provinceState) {
         return countryService.findProvinceState(country, provinceState);
     }
 }

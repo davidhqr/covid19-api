@@ -1,7 +1,9 @@
 package com.example.covid19api.service;
 
 import com.example.covid19api.model.Country;
+import com.example.covid19api.model.ProvinceStateLocation;
 import com.example.covid19api.repository.CountryRepository;
+import com.example.covid19api.repository.ProvinceStateRepository;
 import com.example.covid19api.utils.ReadCSV;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,9 @@ public class DataService {
 
     @Autowired
     private CountryRepository countryRepository;
+
+    @Autowired
+    private ProvinceStateRepository provinceStateRepository;
 
     public void saveCountryData(String file) {
         List<String[]> data = ReadCSV.readCSVFile(file);
@@ -42,7 +47,7 @@ public class DataService {
         }
     }
 
-    public void resetCountryData() {
+    public void resetAllData() {
         countryRepository.findAll()
                          .forEach(country -> {
                              country.setConfirmed(0);
@@ -51,6 +56,49 @@ public class DataService {
                              country.setActive(0);
                              countryRepository.save(country);
                          });
+
+        provinceStateRepository.findAll()
+                               .forEach(provinceStateLocation -> {
+                                   provinceStateLocation.setConfirmed(0);
+                                   provinceStateLocation.setDeaths(0);
+                                   provinceStateLocation.setRecovered(0);
+                                   provinceStateLocation.setActive(0);
+                                   provinceStateRepository.save(provinceStateLocation);
+                               });
+    }
+
+    public void saveProvinceStateData(String file) {
+        List<String[]> data = ReadCSV.readCSVFile(file);
+        for (int i = 1; i < data.size(); i++) {
+            String[] row = data.get(i);
+            if (!row[2].equals("")) {
+                if (!row[2].equals("Recovered")) {
+                    Country countryResult = countryService.findCountry(row[3])
+                                                          .orElseThrow(
+                                                                  () -> new EntityNotFoundException("country " + row[3] + " is not found"));
+                    ProvinceStateLocation provinceStateLocationResult =
+                            provinceStateRepository.findByCountryIdAndProvinceState(countryResult.id, row[2])
+                                                   .orElseThrow(() -> new EntityNotFoundException(
+                                                           "province/state " + row[2] + " is not found for " + row[3]));
+
+                    int confirmed = provinceStateLocationResult.confirmed;
+                    int deaths = provinceStateLocationResult.deaths;
+                    int recovered = provinceStateLocationResult.recovered;
+                    int active = provinceStateLocationResult.active;
+
+                    confirmed += Integer.parseInt(row[7]);
+                    deaths += Integer.parseInt(row[8]);
+                    recovered += Integer.parseInt(row[9]);
+                    active += Integer.parseInt(row[10]);
+
+                    provinceStateLocationResult.setConfirmed(confirmed);
+                    provinceStateLocationResult.setDeaths(deaths);
+                    provinceStateLocationResult.setRecovered(recovered);
+                    provinceStateLocationResult.setActive(active);
+                    provinceStateRepository.save(provinceStateLocationResult);
+                }
+            }
+        }
     }
 }
 //

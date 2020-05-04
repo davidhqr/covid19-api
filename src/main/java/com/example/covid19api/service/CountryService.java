@@ -26,14 +26,13 @@ public class CountryService {
     private ProvinceStateRepository provinceStateRepository;
 
 
-    public void saveCountry(String file) {
+    public void saveCountryAndProvinceState(String file) {
         List<String[]> data = ReadCSV.readCSVFile(file);
         int TABLE_LENGTH = 348;
         for (int i = 1; i < TABLE_LENGTH; i++) {
             String[] row = data.get(i);
-            Country countryResult = countryRepository.findByCountryName(row[7])
-                                                     .orElseThrow(() -> new EntityNotFoundException("country " + row[7] + " is not found"));
-            if (countryResult == null) {
+            Optional<Country> countryResult = countryRepository.findByCountryName(row[7]);
+            if (!countryResult.isPresent()) {
                 Country country = new Country(row[7],
                                               row[1],
                                               row[2],
@@ -44,11 +43,15 @@ public class CountryService {
             } else {
                 if (!row[6].equals("")) {
                     if (!row[6].equals("Recovered")) {
-                        ProvinceStateLocation provinceStateLocation = new ProvinceStateLocation(countryResult,
-                                                                                                row[6],
-                                                                                                row[8],
-                                                                                                row[9]);
-                        provinceStateRepository.save(provinceStateLocation);
+                        Optional<ProvinceStateLocation> provinceStateResult =
+                                provinceStateRepository.findByCountryIdAndProvinceState(countryResult.get().id, row[6]);
+                        if (!provinceStateResult.isPresent()) {
+                            ProvinceStateLocation provinceStateLocation = new ProvinceStateLocation(countryResult.get(),
+                                                                                                    row[6],
+                                                                                                    row[8],
+                                                                                                    row[9]);
+                            provinceStateRepository.save(provinceStateLocation);
+                        }
                     }
 
                 }
@@ -87,11 +90,12 @@ public class CountryService {
     }
 
     public CountryProvinceStateLocationDto findProvinceState(String countryName, String provinceState) {
-        ProvinceStateLocation provinceStateLocation =
-                provinceStateRepository.findByProvinceState(provinceState)
-                                       .orElseThrow(() -> new EntityNotFoundException("provinces/states are not found for " + countryName));
         Country country = countryRepository.findByCountryName(countryName)
                                            .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
+        ProvinceStateLocation provinceStateLocation =
+                provinceStateRepository.findByCountryIdAndProvinceState(country.id, provinceState)
+                                       .orElseThrow(() -> new EntityNotFoundException(
+                                               "province/state " + provinceState + " is not found for " + countryName));
         return new CountryProvinceStateLocationDto(country.id,
                                                    country.countryName,
                                                    country.iso2,

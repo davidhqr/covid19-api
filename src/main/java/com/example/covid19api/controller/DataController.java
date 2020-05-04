@@ -22,10 +22,16 @@ public class DataController {
         dataService.saveCountryData(latest);
     }
 
+    // Need to implement a scheduled job to save everyday
+    @RequestMapping("/save-province-state-data")
+    public void saveProvinceStateData() {
+        dataService.saveProvinceStateData(latest);
+    }
+
     // Need to implement a scheduled job to clear everyday
-    @RequestMapping("/clear-country-data")
-    public void resetCountryData() {
-        dataService.resetCountryData();
+    @RequestMapping("/clear-all-data")
+    public void resetAllData() {
+        dataService.resetAllData();
     }
 
 //    @RequestMapping("/api/latest")

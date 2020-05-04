@@ -12,5 +12,5 @@ public interface ProvinceStateRepository extends JpaRepository<ProvinceStateLoca
 
     Optional<List<ProvinceStateLocation>> findByCountryId(Long countryId);
 
-    Optional<ProvinceStateLocation> findByProvinceState(String provinceState);
+    Optional<ProvinceStateLocation> findByCountryIdAndProvinceState(long country_id, String provinceState);
 }
