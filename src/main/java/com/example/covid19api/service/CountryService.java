@@ -1,8 +1,8 @@
 package com.example.covid19api.service;
 
-import com.example.covid19api.controller.dto.CountryDetailsDto;
-import com.example.covid19api.controller.dto.CountryProvinceStateLocationDto;
-import com.example.covid19api.controller.dto.ProvinceStateLocationDto;
+import com.example.covid19api.controller.dto.CountryDetailsGeographicInfoDto;
+import com.example.covid19api.controller.dto.CountryProvinceStateGeographicInfoDto;
+import com.example.covid19api.controller.dto.ProvinceStateGeographicInfoDto;
 import com.example.covid19api.model.Country;
 import com.example.covid19api.model.ProvinceStateLocation;
 import com.example.covid19api.repository.CountryRepository;
@@ -63,46 +63,45 @@ public class CountryService {
         return countryRepository.findAll();
     }
 
-    public Optional<Country> findCountry(String countryName) {
-        return countryRepository.findByCountryName(countryName);
+    public Country findCountry(String countryName) {
+        return countryRepository.findByCountryName(countryName)
+                                .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
     }
 
-    public CountryDetailsDto findCountryDetails(String countryName) {
-        Country country = countryRepository.findByCountryName(countryName)
-                                           .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
+    public CountryDetailsGeographicInfoDto findCountryDetails(String countryName) {
+        Country country = findCountry(countryName);
         List<ProvinceStateLocation> provinceStateList =
                 provinceStateRepository.findByCountryId(country.id)
                                        .orElseThrow(() -> new EntityNotFoundException("provinces/states are not found for " + countryName));
-        List<ProvinceStateLocationDto> provinceStateLocationDtoList =
+        List<ProvinceStateGeographicInfoDto> provinceStateGeographicInfoDtoList =
                 provinceStateList.stream()
-                                 .map(provinceStateLocation -> new ProvinceStateLocationDto(provinceStateLocation.provinceState,
-                                                                                            provinceStateLocation.latitude,
-                                                                                            provinceStateLocation.longitude))
+                                 .map(provinceStateLocation -> new ProvinceStateGeographicInfoDto(provinceStateLocation.provinceState,
+                                                                                                  provinceStateLocation.latitude,
+                                                                                                  provinceStateLocation.longitude))
                                  .collect(Collectors.toList());
-        return new CountryDetailsDto(country.id,
-                                     country.countryName,
-                                     country.iso2,
-                                     country.iso3,
-                                     country.latitude,
-                                     country.longitude,
-                                     country.population,
-                                     provinceStateLocationDtoList);
+        return new CountryDetailsGeographicInfoDto(country.id,
+                                                   country.countryName,
+                                                   country.iso2,
+                                                   country.iso3,
+                                                   country.latitude,
+                                                   country.longitude,
+                                                   country.population,
+                                                   provinceStateGeographicInfoDtoList);
     }
 
-    public CountryProvinceStateLocationDto findProvinceState(String countryName, String provinceState) {
-        Country country = countryRepository.findByCountryName(countryName)
-                                           .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
+    public CountryProvinceStateGeographicInfoDto findProvinceState(String countryName, String provinceState) {
+        Country country = findCountry(countryName);
         ProvinceStateLocation provinceStateLocation =
                 provinceStateRepository.findByCountryIdAndProvinceState(country.id, provinceState)
                                        .orElseThrow(() -> new EntityNotFoundException(
                                                "province/state " + provinceState + " is not found for " + countryName));
-        return new CountryProvinceStateLocationDto(country.id,
-                                                   country.countryName,
-                                                   country.iso2,
-                                                   country.iso3,
-                                                   provinceStateLocation.provinceState,
-                                                   provinceStateLocation.latitude,
-                                                   provinceStateLocation.longitude);
+        return new CountryProvinceStateGeographicInfoDto(country.id,
+                                                         country.countryName,
+                                                         country.iso2,
+                                                         country.iso3,
+                                                         provinceStateLocation.provinceState,
+                                                         provinceStateLocation.latitude,
+                                                         provinceStateLocation.longitude);
     }
 
 }

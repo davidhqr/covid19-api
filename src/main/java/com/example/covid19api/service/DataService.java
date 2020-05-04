@@ -1,5 +1,6 @@
 package com.example.covid19api.service;
 
+import com.example.covid19api.controller.dto.LatestGlobalDataDto;
 import com.example.covid19api.model.Country;
 import com.example.covid19api.model.ProvinceStateLocation;
 import com.example.covid19api.repository.CountryRepository;
@@ -10,12 +11,10 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class DataService {
-
-    @Autowired
-    private CountryService countryService;
 
     @Autowired
     private CountryRepository countryRepository;
@@ -23,29 +22,6 @@ public class DataService {
     @Autowired
     private ProvinceStateRepository provinceStateRepository;
 
-    public void saveCountryData(String file) {
-        List<String[]> data = ReadCSV.readCSVFile(file);
-        for (int i = 1; i < data.size(); i++) {
-            String[] row = data.get(i);
-            Country countryResult = countryService.findCountry(row[3])
-                                                  .orElseThrow(() -> new EntityNotFoundException("country " + row[7] + " is not found"));
-            int confirmed = countryResult.confirmed;
-            int deaths = countryResult.deaths;
-            int recovered = countryResult.recovered;
-            int active = countryResult.active;
-
-            confirmed += Integer.parseInt(row[7]);
-            deaths += Integer.parseInt(row[8]);
-            recovered += Integer.parseInt(row[9]);
-            active += Integer.parseInt(row[10]);
-
-            countryResult.setConfirmed(confirmed);
-            countryResult.setDeaths(deaths);
-            countryResult.setRecovered(recovered);
-            countryResult.setActive(active);
-            countryRepository.save(countryResult);
-        }
-    }
 
     public void resetAllData() {
         countryRepository.findAll()
@@ -67,15 +43,34 @@ public class DataService {
                                });
     }
 
+    public void saveCountryData(String file) {
+        List<String[]> data = ReadCSV.readCSVFile(file);
+        for (int i = 1; i < data.size(); i++) {
+            String[] row = data.get(i);
+            Country countryResult = countryRepository.findByCountryName(row[3])
+                                                     .orElseThrow(() -> new EntityNotFoundException("country " + row[3] + " is not found"));
+            int confirmed = countryResult.confirmed + Integer.parseInt(row[7]);
+            int deaths = countryResult.deaths + Integer.parseInt(row[8]);
+            int recovered = countryResult.recovered + Integer.parseInt(row[9]);
+            int active = countryResult.active + Integer.parseInt(row[10]);
+
+            countryResult.setConfirmed(confirmed);
+            countryResult.setDeaths(deaths);
+            countryResult.setRecovered(recovered);
+            countryResult.setActive(active);
+            countryRepository.save(countryResult);
+        }
+    }
+
     public void saveProvinceStateData(String file) {
         List<String[]> data = ReadCSV.readCSVFile(file);
         for (int i = 1; i < data.size(); i++) {
             String[] row = data.get(i);
             if (!row[2].equals("")) {
                 if (!row[2].equals("Recovered")) {
-                    Country countryResult = countryService.findCountry(row[3])
-                                                          .orElseThrow(
-                                                                  () -> new EntityNotFoundException("country " + row[3] + " is not found"));
+                    Country countryResult =
+                            countryRepository.findByCountryName(row[3])
+                                             .orElseThrow(() -> new EntityNotFoundException("country " + row[3] + " is not found"));
                     ProvinceStateLocation provinceStateLocationResult =
                             provinceStateRepository.findByCountryIdAndProvinceState(countryResult.id, row[2])
                                                    .orElseThrow(() -> new EntityNotFoundException(
@@ -100,22 +95,33 @@ public class DataService {
             }
         }
     }
+
+    public LatestGlobalDataDto getLatestDataGlobal() {
+        AtomicInteger confirmed = new AtomicInteger();
+        AtomicInteger deaths = new AtomicInteger();
+        AtomicInteger recovered = new AtomicInteger();
+        AtomicInteger active = new AtomicInteger();
+
+        List<Country> countries = countryRepository.findAll();
+
+        countries.forEach(country -> {
+            confirmed.addAndGet(country.confirmed);
+            deaths.addAndGet(country.deaths);
+            recovered.addAndGet(country.recovered);
+            active.addAndGet(country.active);
+        });
+
+        return new LatestGlobalDataDto(confirmed.intValue(),
+                                       deaths.intValue(),
+                                       recovered.intValue(),
+                                       active.intValue());
+    }
+
+    public List<Country> getLatestDataForAllCountries() {
+        return countryRepository.findAll();
+    }
 }
-//
-//    public LatestDataGlobal latestDataGlobal(String file) {
-//        Collection<LatestDataByCountry> latestDataByCountry = latestDataByCountry(file).values();
-//        int confirmed = 0;
-//        int deaths = 0;
-//        int recovered = 0;
-//        for (LatestDataByCountry data : latestDataByCountry) {
-//            confirmed += data.confirmed;
-//            deaths += data.deaths;
-//            recovered += data.recovered;
-//        }
-//        return new LatestDataGlobal(confirmed,
-//                                    deaths,
-//                                    recovered);
-//    }
+
 //
 //    public TreeMap<String, LatestDataByCountry> latestDataByCountry(String file) {
 //        String countryTable = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
