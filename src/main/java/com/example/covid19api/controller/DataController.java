@@ -1,10 +1,16 @@
 package com.example.covid19api.controller;
 
+import com.example.covid19api.controller.dto.CountryDetailsDataDto;
+import com.example.covid19api.controller.dto.CountryProvinceStateDataDto;
+import com.example.covid19api.controller.dto.GlobalDataDto;
+import com.example.covid19api.model.Country;
 import com.example.covid19api.service.DataService;
-import com.example.covid19api.utils.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class DataController {
@@ -12,55 +18,28 @@ public class DataController {
     @Autowired
     private DataService dataService;
 
-    String latest = String.format(
-            "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/%s.csv",
-            Helper.date());
-
-    // Need to implement a scheduled job to save everyday
-    @RequestMapping("/save-country-data")
-    public void saveCountryData() {
-        dataService.saveCountryData(latest);
+    @RequestMapping("/api/data/global")
+    public GlobalDataDto getLatestDataGlobal() {
+        return dataService.getLatestDataGlobal();
     }
 
-    // Need to implement a scheduled job to clear everyday
-    @RequestMapping("/clear-country-data")
-    public void resetCountryData() {
-        dataService.resetCountryData();
+    @RequestMapping("/api/data/countries")
+    public List<Country> getLatestDataForAllCountries() {
+        return dataService.getLatestDataForAllCountries();
     }
 
-//    @RequestMapping("/api/latest")
-//    public LatestDataGlobal getLatestDataGlobal() {
-//        return dataService.latestDataGlobal(latest);
-//    }
-//
-//
-//    // Data by countries
-//
-//    @RequestMapping("/api/countries/latest")
-//    public Collection<LatestDataByCountry> getLatestDataByCountry() {
-//        return dataService.latestDataByCountry(latest).values();
-//    }
-//
-//    @RequestMapping("/api/countries/locations/latest")
-//    public TreeMap<String, LatestDataByCountryGrouped> getLatestDataWithLocationsGrouped() {
-//        return dataService.latestDataWithLocationsGrouped(latest);
-//    }
-//
-//
-//    // Data by locations (provinces/state if available)
-//
-//    @RequestMapping("/api/locations/confirmed")
-//    public List<LocationConfirmedData> getConfirmedByGlobalLocation() {
-//        return dataService.confirmedDataByLocation(confirmed);
-//    }
-//
-//    @RequestMapping("/api/locations/deaths")
-//    public List<LocationDeathData> getDeathsByGlobalLocation() {
-//        return dataService.deathDataByLocation(deaths);
-//    }
-//
-//    @RequestMapping("/api/locations/recovered")
-//    public List<LocationRecoveredData> getRecoveredByGlobalLocation() {
-//        return dataService.recoveredDataByLocation(recovered);
-//    }
+    @RequestMapping("/api/data/countries/{country}")
+    public Country getLatestDataByCountry(@PathVariable String country) {
+        return dataService.getLatestDataByCountry(country);
+    }
+
+    @RequestMapping("/api/data/countries/{country}/details")
+    public CountryDetailsDataDto getLatestDataByCountryWithDetails(@PathVariable String country) {
+        return dataService.getLatestDataByCountryWithDetails(country);
+    }
+
+    @RequestMapping("/api/data/countries/{country}/{provinceState}")
+    public CountryProvinceStateDataDto getLatestDataByProvinceState(@PathVariable String country, @PathVariable String provinceState) {
+        return dataService.getLatestDataByProvinceState(country, provinceState);
+    }
 }

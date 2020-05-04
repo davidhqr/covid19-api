@@ -1,8 +1,9 @@
 package com.example.covid19api.service;
 
-import com.example.covid19api.controller.dto.CountryDetailsDto;
-import com.example.covid19api.controller.dto.CountryProvinceStateLocationDto;
-import com.example.covid19api.controller.dto.ProvinceStateLocationDto;
+import com.example.covid19api.controller.dto.CountryDetailsGeographicInfoDto;
+import com.example.covid19api.controller.dto.CountryGeographicInfoDto;
+import com.example.covid19api.controller.dto.CountryProvinceStateGeographicInfoDto;
+import com.example.covid19api.controller.dto.ProvinceStateGeographicInfoDto;
 import com.example.covid19api.model.Country;
 import com.example.covid19api.model.ProvinceStateLocation;
 import com.example.covid19api.repository.CountryRepository;
@@ -26,14 +27,13 @@ public class CountryService {
     private ProvinceStateRepository provinceStateRepository;
 
 
-    public void saveCountry(String file) {
+    public void saveCountryAndProvinceState(String file) {
         List<String[]> data = ReadCSV.readCSVFile(file);
         int TABLE_LENGTH = 348;
         for (int i = 1; i < TABLE_LENGTH; i++) {
             String[] row = data.get(i);
-            Country countryResult = countryRepository.findByCountryName(row[7])
-                                                     .orElseThrow(() -> new EntityNotFoundException("country " + row[7] + " is not found"));
-            if (countryResult == null) {
+            Optional<Country> countryResult = countryRepository.findByCountryName(row[7]);
+            if (!countryResult.isPresent()) {
                 Country country = new Country(row[7],
                                               row[1],
                                               row[2],
@@ -44,11 +44,15 @@ public class CountryService {
             } else {
                 if (!row[6].equals("")) {
                     if (!row[6].equals("Recovered")) {
-                        ProvinceStateLocation provinceStateLocation = new ProvinceStateLocation(countryResult,
-                                                                                                row[6],
-                                                                                                row[8],
-                                                                                                row[9]);
-                        provinceStateRepository.save(provinceStateLocation);
+                        Optional<ProvinceStateLocation> provinceStateResult =
+                                provinceStateRepository.findByCountryIdAndProvinceState(countryResult.get().id, row[6]);
+                        if (!provinceStateResult.isPresent()) {
+                            ProvinceStateLocation provinceStateLocation = new ProvinceStateLocation(countryResult.get(),
+                                                                                                    row[6],
+                                                                                                    row[8],
+                                                                                                    row[9]);
+                            provinceStateRepository.save(provinceStateLocation);
+                        }
                     }
 
                 }
@@ -56,49 +60,68 @@ public class CountryService {
         }
     }
 
-    public List<Country> findAllCountries() {
-        return countryRepository.findAll();
+    public List<CountryGeographicInfoDto> findAllCountries() {
+        List<Country> countries = countryRepository.findAll();
+        return countries.stream()
+                        .map(country ->
+                                     new CountryGeographicInfoDto(country.id,
+                                                                  country.countryName,
+                                                                  country.iso2,
+                                                                  country.iso3,
+                                                                  country.latitude,
+                                                                  country.longitude,
+                                                                  country.population))
+                        .collect(Collectors.toList());
     }
 
-    public Optional<Country> findCountry(String countryName) {
-        return countryRepository.findByCountryName(countryName);
+    public CountryGeographicInfoDto findCountry(String countryName) {
+        Country country = countryRepository.findByCountryName(countryName)
+                                           .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
+        return new CountryGeographicInfoDto(country.id,
+                                            country.countryName,
+                                            country.iso2,
+                                            country.iso3,
+                                            country.latitude,
+                                            country.longitude,
+                                            country.population);
     }
 
-    public CountryDetailsDto findCountryDetails(String countryName) {
+    public CountryDetailsGeographicInfoDto findCountryDetails(String countryName) {
         Country country = countryRepository.findByCountryName(countryName)
                                            .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
         List<ProvinceStateLocation> provinceStateList =
                 provinceStateRepository.findByCountryId(country.id)
                                        .orElseThrow(() -> new EntityNotFoundException("provinces/states are not found for " + countryName));
-        List<ProvinceStateLocationDto> provinceStateLocationDtoList =
+        List<ProvinceStateGeographicInfoDto> provinceStateGeographicInfoDtoList =
                 provinceStateList.stream()
-                                 .map(provinceStateLocation -> new ProvinceStateLocationDto(provinceStateLocation.provinceState,
-                                                                                            provinceStateLocation.latitude,
-                                                                                            provinceStateLocation.longitude))
+                                 .map(provinceStateLocation -> new ProvinceStateGeographicInfoDto(provinceStateLocation.provinceState,
+                                                                                                  provinceStateLocation.latitude,
+                                                                                                  provinceStateLocation.longitude))
                                  .collect(Collectors.toList());
-        return new CountryDetailsDto(country.id,
-                                     country.countryName,
-                                     country.iso2,
-                                     country.iso3,
-                                     country.latitude,
-                                     country.longitude,
-                                     country.population,
-                                     provinceStateLocationDtoList);
-    }
-
-    public CountryProvinceStateLocationDto findProvinceState(String countryName, String provinceState) {
-        ProvinceStateLocation provinceStateLocation =
-                provinceStateRepository.findByProvinceState(provinceState)
-                                       .orElseThrow(() -> new EntityNotFoundException("provinces/states are not found for " + countryName));
-        Country country = countryRepository.findByCountryName(countryName)
-                                           .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
-        return new CountryProvinceStateLocationDto(country.id,
+        return new CountryDetailsGeographicInfoDto(country.id,
                                                    country.countryName,
                                                    country.iso2,
                                                    country.iso3,
-                                                   provinceStateLocation.provinceState,
-                                                   provinceStateLocation.latitude,
-                                                   provinceStateLocation.longitude);
+                                                   country.latitude,
+                                                   country.longitude,
+                                                   country.population,
+                                                   provinceStateGeographicInfoDtoList);
+    }
+
+    public CountryProvinceStateGeographicInfoDto findProvinceState(String countryName, String provinceState) {
+        Country country = countryRepository.findByCountryName(countryName)
+                                           .orElseThrow(() -> new EntityNotFoundException("country " + countryName + " is not found"));
+        ProvinceStateLocation provinceStateLocation =
+                provinceStateRepository.findByCountryIdAndProvinceState(country.id, provinceState)
+                                       .orElseThrow(() -> new EntityNotFoundException(
+                                               "province/state " + provinceState + " is not found for " + countryName));
+        return new CountryProvinceStateGeographicInfoDto(country.id,
+                                                         country.countryName,
+                                                         country.iso2,
+                                                         country.iso3,
+                                                         provinceStateLocation.provinceState,
+                                                         provinceStateLocation.latitude,
+                                                         provinceStateLocation.longitude);
     }
 
 }
