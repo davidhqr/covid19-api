@@ -17,15 +17,6 @@ public class CountryController {
     @Autowired
     private CountryService countryService;
 
-    String file = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
-
-
-    // Need to implement a scheduled job to save once
-    @RequestMapping("/save-country")
-    public void saveCountryAndProvinceState() {
-        countryService.saveCountryAndProvinceState(file);
-    }
-
     @RequestMapping("/api/countries")
     public List<CountryGeographicInfoDto> findAllCountries() {
         return countryService.findAllCountries();
