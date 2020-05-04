@@ -30,17 +30,12 @@ public class SaveResetController {
 
     // Save and reset data - Need to implement a scheduled job to clear then save everyday
 
-    @RequestMapping("/save-country-data")
-    public void saveCountryData() {
-        dataService.saveCountryData(LATEST_DATA);
+    @RequestMapping("/save-data")
+    public void saveData() {
+        dataService.saveData(LATEST_DATA);
     }
 
-    @RequestMapping("/save-province-state-data")
-    public void saveProvinceStateData() {
-        dataService.saveProvinceStateData(LATEST_DATA);
-    }
-
-    @RequestMapping("/clear-all-data")
+    @RequestMapping("/clear-data")
     public void resetAllData() {
         dataService.resetAllData();
     }

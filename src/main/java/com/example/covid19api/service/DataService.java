@@ -47,34 +47,26 @@ public class DataService {
                                });
     }
 
-    public void saveCountryData(String file) {
+    public void saveData(String file) {
         List<String[]> data = ReadCSV.readCSVFile(file);
         for (int i = 1; i < data.size(); i++) {
             String[] row = data.get(i);
+
             Country countryResult = countryRepository.findByCountryName(row[3])
                                                      .orElseThrow(() -> new EntityNotFoundException("country " + row[3] + " is not found"));
-            int confirmed = countryResult.confirmed + Integer.parseInt(row[7]);
-            int deaths = countryResult.deaths + Integer.parseInt(row[8]);
-            int recovered = countryResult.recovered + Integer.parseInt(row[9]);
-            int active = countryResult.active + Integer.parseInt(row[10]);
+            int countryConfirmed = countryResult.confirmed + Integer.parseInt(row[7]);
+            int countryDeaths = countryResult.deaths + Integer.parseInt(row[8]);
+            int countryRecovered = countryResult.recovered + Integer.parseInt(row[9]);
+            int countryActive = countryResult.active + Integer.parseInt(row[10]);
 
-            countryResult.setConfirmed(confirmed);
-            countryResult.setDeaths(deaths);
-            countryResult.setRecovered(recovered);
-            countryResult.setActive(active);
+            countryResult.setConfirmed(countryConfirmed);
+            countryResult.setDeaths(countryDeaths);
+            countryResult.setRecovered(countryRecovered);
+            countryResult.setActive(countryActive);
             countryRepository.save(countryResult);
-        }
-    }
 
-    public void saveProvinceStateData(String file) {
-        List<String[]> data = ReadCSV.readCSVFile(file);
-        for (int i = 1; i < data.size(); i++) {
-            String[] row = data.get(i);
             if (!row[2].equals("")) {
                 if (!row[2].equals("Recovered")) {
-                    Country countryResult =
-                            countryRepository.findByCountryName(row[3])
-                                             .orElseThrow(() -> new EntityNotFoundException("country " + row[3] + " is not found"));
                     ProvinceStateLocation provinceStateLocationResult =
                             provinceStateRepository.findByCountryIdAndProvinceState(countryResult.id, row[2])
                                                    .orElseThrow(() -> new EntityNotFoundException(
