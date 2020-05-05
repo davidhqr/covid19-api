@@ -23,6 +23,7 @@ public class TimeSeries {
 
     public String countryName;
 
+    @SuppressWarnings("JpaDataSourceORMInspection")
     @ManyToOne
     @JoinColumn(name = "country_id")
     private Country country;

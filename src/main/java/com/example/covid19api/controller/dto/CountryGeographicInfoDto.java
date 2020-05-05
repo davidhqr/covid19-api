@@ -14,7 +14,7 @@ public class CountryGeographicInfoDto {
 
     public String longitude;
 
-    public int population;
+    public Integer population;
 
     public CountryGeographicInfoDto(Long id,
                                     String countryName,
@@ -22,7 +22,7 @@ public class CountryGeographicInfoDto {
                                     String iso3,
                                     String latitude,
                                     String longitude,
-                                    int population) {
+                                    Integer population) {
         this.id = id;
         this.countryName = countryName;
         this.iso2 = iso2;
