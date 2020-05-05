@@ -1,14 +1,14 @@
-## COVID19-API
+# COVID19-API
 
 COVID19-API provides up-to-date data on the covid-19 global pandemic. The API retrieves data from Johns Hopkins University: https://github.com/CSSEGISandData/COVID-19. 
 The API provides data on confirmed, deaths, recovered, and active cases by province/state and by country. 
 Timeline of confirmed, deaths, and recovered cases for each country is also available.
 
-### API Endpoints
+## API Endpoints
 
-#### Data By Countries and Provinces/States
+### Data By Countries and Provinces/States
 
-##### Display global latest data
+#### Display global latest data
 `GET /api/data/global`
 
 Sample response:
@@ -24,7 +24,7 @@ Sample response:
 <p>&nbsp;</p>
 
 
-##### Display latest data for all countries
+#### Display latest data for all countries
 `GET /api/data/countries`
 
 Sample response:
@@ -63,7 +63,7 @@ Sample response:
 <p>&nbsp;</p>
 
 
-##### Display latest data for specified country
+#### Display latest data for specified country
 `GET /api/data/countries/{country}`
 
 Sample response:
@@ -86,7 +86,7 @@ Sample response:
 <p>&nbsp;</p>
 
 
-##### Display latest data for specified country with provinces/states if available
+#### Display latest data for specified country with provinces/states if available
 `GET /api/data/countries/{country}/details`
 
 Sample response:
@@ -126,7 +126,7 @@ Sample response:
 <p>&nbsp;</p>
 
 
-##### Display latest data for specified province/state
+#### Display latest data for specified province/state
 `GET /api/data/countries/{country}/{provinceState}`
 
 Sample response:
@@ -148,12 +148,11 @@ Sample response:
 
 <p>&nbsp;</p>
 
+----------
 
---
+### Timelines for Countries
 
-#### Timelines for Countries
-
-##### Display individual countries' timelines for confirmed/deaths/recovered cases
+#### Display individual countries' timelines for confirmed/deaths/recovered cases
 `GET /api/timelines/{country}`
 
 Sample response:
@@ -189,9 +188,13 @@ Sample response:
 }
 ```
 
-#### Countries' Geographical Information
+<p>&nbsp;</p>
 
-##### Display all countries' geographic information
+----------
+
+### Countries' Geographical Information
+
+#### Display all countries' geographic information
 `GET /api/countries`
 
 Sample response:
@@ -221,7 +224,7 @@ Sample response:
 
 <p>&nbsp;</p>
 
-##### Display individual country's geographic information
+#### Display individual country's geographic information
 `GET /api/countries/{countury}`
 
 Sample response:
@@ -239,7 +242,7 @@ Sample response:
 
 <p>&nbsp;</p>
 
-##### Display individual country's detailed geographic information, including provinces/states
+#### Display individual country's detailed geographic information, including provinces/states
 `GET /api/countries/{countury}/details`
 
 Sample response:
@@ -271,7 +274,7 @@ Sample response:
 <p>&nbsp;</p>
 
 
-##### Display individual province/state's geographic information
+#### Display individual province/state's geographic information
 `GET /api/countries/{countury}/{provinceState}`
 
 Sample response:
