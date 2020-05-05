@@ -106,11 +106,13 @@ public class TimeSeriesService {
                                                                                                         TimeSeries::getConfirmed)))
                                                         .descendingMap();
         NavigableMap<String, Integer> deaths = Helper.getTreeMap(timeSeries.stream()
-                                                                      .collect(Collectors.toMap(TimeSeries::getDate,
-                                                                                                TimeSeries::getDeaths)));
+                                                                           .collect(Collectors.toMap(TimeSeries::getDate,
+                                                                                                     TimeSeries::getDeaths)))
+                                                     .descendingMap();
         NavigableMap<String, Integer> recovered = Helper.getTreeMap(timeSeries.stream()
-                                                                         .collect(Collectors.toMap(TimeSeries::getDate,
-                                                                                                   TimeSeries::getRecovered)));
+                                                                              .collect(Collectors.toMap(TimeSeries::getDate,
+                                                                                                        TimeSeries::getRecovered)))
+                                                        .descendingMap();
 
         TimeSeriesDto timeSeriesDto = new TimeSeriesDto(confirmed,
                                                         deaths,
